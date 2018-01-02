@@ -28,6 +28,7 @@ License:
 #include <complex.h>
 
 #include "fourbsixb.h"
+#include "ook.h"
 
 // IQ file sample rate (should match the -s param to rtl_sdr)
 // This gets us about 62 samples per symbol
@@ -73,24 +74,15 @@ int main(int argc, char*argv[])
   float complex *input_samples;
   input_samples = (float complex*)malloc(batch_size*sizeof(float complex));
 
-  unsigned int k = SAMPLES_PER_SYMBOL;
-  unsigned int sample_counter = 0;
-  uint8_t last_symbol = 0;
-  unsigned int sample_index = k/2;
+  DemodOOK demod;
+  ook_init(&demod, SAMPLES_PER_SYMBOL, 0xff00ff00, ON_BIT_THRESHOLD);
+
+  FourbSixbDecoderState decoder;
+  fourbsixb_init_decoder(&decoder);
 
   unsigned int i,j;
-  uint32_t syncword = 0xff00ff00;
-  uint32_t sync_acc = 0;
-  uint8_t symbol;
-  uint8_t data_acc;
   uint8_t packet[PACKET_LEN];
-  uint8_t bits_received = 0;
   uint8_t packet_len = 0;
-
-  typedef enum {MODE_SQUELCH, MODE_PREAMBLE,MODE_PACKET} ScanMode;
-  ScanMode scan_mode = MODE_SQUELCH;
-
- FourbSixbDecoderState decoder;
 
   while(1) {
     unsigned bytes_read = fread(iq_buffer, 1, batch_size*2, iqfile);
@@ -103,50 +95,21 @@ int main(int argc, char*argv[])
 
         //printf("%f, %f, %f\n", crealf(r), cimagf(r), cabsf(r));
 
-        symbol = (cabsf(r) > ON_BIT_THRESHOLD) ? 1 : 0;
-        bool edge = symbol != last_symbol;
-        if (edge) {
-          //printf("edge\n");
-          sample_counter = 0;
-        }
-        if (sample_counter == sample_index) {
-          //printf("************** output bit = %d\n", bit_on ? 1 : 0);
-          if (scan_mode == MODE_SQUELCH) {
-            if (symbol) {
-              scan_mode = MODE_PREAMBLE;
-            }
-          } else if (scan_mode == MODE_PREAMBLE) {
-            //printf("%d", symbol);
-            sync_acc = (sync_acc << 1) + symbol;
-            //printf("\nsync_acc =(%x)\n", sync_acc);
-            if (sync_acc == syncword) {
-              //printf(" - Sync!\n");
-              scan_mode = MODE_PACKET;
-              sync_acc = 0;
-              fourbsixb_init_decoder(&decoder);
-            }
-          } else if (scan_mode == MODE_PACKET) {
-            data_acc = (data_acc << 1) + symbol;
-            bits_received = (bits_received + 1) % 8;
-            if (bits_received == 0) {
-              packet[packet_len++] = data_acc;
-              uint8_t encode_err = fourbsixb_add_encoded_byte(&decoder, data_acc);
-              uint8_t decoded;
-              while(fourbsixb_next_decoded_byte(&decoder, &decoded)) {
-                printf("%02x", decoded);
-              }
-              if (encode_err) {
-                packet_len = 0;
-                bits_received = 0;
-                scan_mode = MODE_SQUELCH;
-                printf("\n");
-              }
-              data_acc = 0;
-            }
+        if (ook_demod_sample(&demod, r)) {
+          uint8_t data = ook_get_symbol(&demod);
+          uint8_t encode_err = fourbsixb_add_encoded_byte(&decoder, data);
+          uint8_t decoded;
+          while(fourbsixb_next_decoded_byte(&decoder, &decoded)) {
+            packet[packet_len++] = decoded;
+            printf("%02x", decoded);
+          }
+          if (encode_err) {
+            fourbsixb_init_decoder(&decoder);
+            ook_end_packet(&demod);
+            packet_len = 0;
+            printf("\n");
           }
         }
-        last_symbol = symbol;
-        sample_counter = (sample_counter + 1) % k;
       }
     } else {
       break;

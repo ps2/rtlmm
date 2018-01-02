@@ -19,5 +19,8 @@ rtlmm.o: rtlmm.c
 fourbsixb.o: fourbsixb.c
 		$(CC) $(CFLAGS) -o fourbsixb.o -c fourbsixb.c
 
-rtlmm: rtlmm.o fourbsixb.o
-		$(CC) -o rtlmm rtlmm.o fourbsixb.o $(LDFLAGS)
+ook.o: ook.c
+		$(CC) $(CFLAGS) -o ook.o -c ook.c
+
+rtlmm: rtlmm.o fourbsixb.o ook.o
+		$(CC) -o rtlmm rtlmm.o fourbsixb.o ook.o $(LDFLAGS)
