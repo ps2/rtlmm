@@ -1,2 +1,5 @@
 rtlmm
 *.dSYM
+*.cu8
+*.fc32
+*.csv
