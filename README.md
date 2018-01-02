@@ -1,6 +1,6 @@
 # rtlmm
 
-_Created by Evariste Courjaud F5OEO. Code is GPL_
+_Created by Pete Schwamb. Code is released under MIT license.
 
 **rtlmm** is software to sniff minimed RF packets using a RTLSDR dongle
 
