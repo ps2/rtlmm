@@ -13,6 +13,11 @@ CFLAGS  += -Wall -g -O2 -Wno-unused-variable
 
 LDFLAGS	= -lm -lliquid
 
+rtlmm.o: rtlmm.c
+		$(CC) $(CFLAGS) -o rtlmm.o -c rtlmm.c
 
-rtlmm: rtlmm.c
-		$(CC) $(CFLAGS) -o rtlmm rtlmm.c $(LDFLAGS)
+fourbsixb.o: fourbsixb.c
+		$(CC) $(CFLAGS) -o fourbsixb.o -c fourbsixb.c
+
+rtlmm: rtlmm.o fourbsixb.o
+		$(CC) -o rtlmm rtlmm.o fourbsixb.o $(LDFLAGS)

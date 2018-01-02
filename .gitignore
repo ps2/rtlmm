@@ -3,3 +3,4 @@ rtlmm
 *.cu8
 *.fc32
 *.csv
+*.o
