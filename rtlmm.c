@@ -1,5 +1,5 @@
 /*
-rtlomni is a software to sniff RF packets using a RTLSDR dongle in order to analysis Omnipod protocol.
+rtlmm is a software to sniff minimed RF packets using a RTLSDR dongle.
 
 Credits :
 
