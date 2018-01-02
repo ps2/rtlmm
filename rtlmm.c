@@ -38,7 +38,7 @@ License:
 #define SAMPLES_PER_SYMBOL (IQSR / BAUDRATE)
 
 // Magnitude threshold for 'on' bit
-#define ON_BIT_THRESHOLD 0.7
+#define ON_BIT_THRESHOLD 0.2
 
 #define PACKET_LEN 255
 
