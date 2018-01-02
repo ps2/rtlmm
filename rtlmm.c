@@ -25,6 +25,7 @@ License:
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <complex.h>
 
 // IQ file sample rate (should match the -s param to rtl_sdr)
 // This gets us about 62 samples per symbol
