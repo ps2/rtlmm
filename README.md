@@ -6,6 +6,10 @@ _Created by Pete Schwamb. Code is released under MIT license._
 
 This work is inspired by and partially based on Evariste Courjaud's great tool: https://github.com/F5OEO/rtlomni
 
+# Prerequisites
+
+* liquid-dsp: On mac, you can `brew install liquid-dsp`.  On linux systems, you must build from source: https://github.com/jgaeddert/liquid-dsp/
+
 # Installation
 ```sh
 
